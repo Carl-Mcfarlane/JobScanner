@@ -1,11 +1,12 @@
 import { runDigest } from "../../src/runDigest.js";
 import { getState, saveState } from "../../src/db.js";
-import { getNzHour, getNzDateString } from "../../src/time.js";
-import { DIGEST_HOUR_NZT } from "../../src/config.js";
+import { getNzDateString } from "../../src/time.js";
 
-// Vercel Cron hits this every hour (see vercel.json). It only actually
-// scrapes + emails once, at DIGEST_HOUR_NZT NZ local time — see time.js for
-// why this is hourly-gated rather than a single fixed-UTC cron expression.
+// Vercel Cron hits this once a day (see vercel.json — the Hobby plan only
+// allows daily crons, so this can't self-gate hourly against NZ local time
+// like a Pro-plan setup could; see README "Digest timing" for the tradeoff).
+// The lastDigestDate check below is just a safety net against duplicate
+// sends if Vercel ever retries/double-fires the same day.
 export default async function handler(req, res) {
   const expectedAuth = process.env.CRON_SECRET ? `Bearer ${process.env.CRON_SECRET}` : null;
   if (expectedAuth && req.headers["authorization"] !== expectedAuth) {
@@ -14,13 +15,6 @@ export default async function handler(req, res) {
   }
 
   const force = req.query?.force === "true";
-  const nzHour = getNzHour();
-
-  if (nzHour !== DIGEST_HOUR_NZT && !force) {
-    res.status(200).json({ skipped: true, reason: `not digest hour (currently ${nzHour}:00 NZT)` });
-    return;
-  }
-
   const today = getNzDateString();
   const state = await getState();
   if (state.lastDigestDate === today && !force) {

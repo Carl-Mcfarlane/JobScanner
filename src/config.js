@@ -30,10 +30,9 @@ export const SOURCES = [
   { id: "linkedin", enabled: false },
 ];
 
-// Hour (24h, NZ local time) the digest should fire. The cron function runs
-// hourly and only actually executes the pipeline when it's this hour in
-// Pacific/Auckland — this makes the send time immune to NZDT/NZST changes,
-// since a fixed-UTC Vercel cron expression can't track daylight saving.
-export const DIGEST_HOUR_NZT = 18;
-
+// The actual send time is controlled by the fixed-UTC cron schedule in
+// vercel.json (Vercel Hobby plan only allows daily crons, not an
+// hourly-self-gating approach that could track NZ's DST changes exactly —
+// see README "Digest timing" for the tradeoff and how to switch back to
+// exact 6pm NZT year-round if this project ever moves to a Pro team).
 export const TIMEZONE = "Pacific/Auckland";
