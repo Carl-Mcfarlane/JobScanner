@@ -104,6 +104,9 @@ export const SOURCES = [
   { id: "seekgrad", enabled: true }, // nz.gradconnection.com — SEEK's rebrand of GradConnection
   { id: "trademe", enabled: false }, // deferred — Jobs Search API needs a registered OAuth app
   { id: "prosple", enabled: true },
+  { id: "absoluteit", enabled: true }, // absoluteit.co.nz — NZ IT-specific recruitment agency
+  { id: "randstad", enabled: true }, // randstad.co.nz — location-scoped pages
+  { id: "madison", enabled: true }, // madison.co.nz — general recruiter, most listings filtered out
   // Glassdoor: page-1 search URLs are robots.txt-compliant and the scraper
   // is built (src/sources/glassdoor.js), but Glassdoor 403s Node's fetch
   // specifically — same headers work fine via curl, so this looks like

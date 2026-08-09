@@ -3,6 +3,9 @@ import { fetchSeekListings } from "./seek.js";
 import { fetchSeekGradListings } from "./seekgrad.js";
 import { fetchProspleListings } from "./prosple.js";
 import { fetchGlassdoorListings } from "./glassdoor.js";
+import { fetchAbsoluteItListings } from "./absoluteit.js";
+import { fetchRandstadListings } from "./randstad.js";
+import { fetchMadisonListings } from "./madison.js";
 
 // Each entry: sourceId -> fetch function returning normalized listings
 // ({ source, sourceId, url, title, company, location, postedAt }[]).
@@ -12,6 +15,9 @@ const SCRAPERS = {
   seekgrad: fetchSeekGradListings,
   prosple: fetchProspleListings,
   glassdoor: fetchGlassdoorListings,
+  absoluteit: fetchAbsoluteItListings,
+  randstad: fetchRandstadListings,
+  madison: fetchMadisonListings,
 };
 
 export async function fetchAllListings({ log = () => {} } = {}) {

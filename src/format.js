@@ -25,6 +25,26 @@ export function sourceLabel(source) {
   return SOURCE_LABELS[source] || source;
 }
 
+const NAMED_ENTITIES = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  "#039": "'",
+  apos: "'",
+  nbsp: " ",
+};
+
+// For scrapers pulling text out of raw HTML (not a JSON API) — WordPress
+// and similar CMSes entity-encode titles/locations (e.g. "&amp;", "&#8211;").
+export function decodeHtmlEntities(str) {
+  if (!str) return str;
+  return str
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&([a-z#0-9]+);/gi, (m, name) => (name in NAMED_ENTITIES ? NAMED_ENTITIES[name] : m));
+}
+
 export function escapeHtml(str) {
   return (str || "")
     .replace(/&/g, "&amp;")
