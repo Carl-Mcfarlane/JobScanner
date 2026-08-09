@@ -6,15 +6,62 @@
 // A listing passes if ANY of these substrings appear in its location label.
 export const LOCATIONS = ["Auckland", "Hamilton", "Bay of Plenty"];
 
-// Case-insensitive substrings matched against each listing's title.
-// A listing passes if ANY of these substrings appear in its title.
-export const KEYWORDS = [
+// Keyword matching is two-part: a listing passes only if its title
+// contains BOTH a seniority/entry-level signal AND a tech-domain signal.
+// This is what lets "Junior Data Analyst" and "DevOps Graduate" match
+// without also reopening the gate to "Senior Software Engineer" (has a
+// tech signal, no entry signal) or "Graduate Mechanical Engineer" (has an
+// entry signal, but "engineer" alone isn't tech-specific — see note below).
+// Matching is whole-word (via matching.js), so "grad" won't match inside
+// "upgrade" and "IT" won't match inside "recruitment".
+
+export const KEYWORDS_ENTRY = [
   "intern",
   "internship",
   "graduate",
   "grad",
-  "software engineer",
+  "graduate programme",
+  "graduate program",
+  "junior",
+  "entry-level",
+  "entry level",
+  "cadetship",
+  "cadet",
+  "trainee",
   "summer",
+];
+
+// Includes bare "engineer"/"engineering" — a deliberate tradeoff (see
+// chat): without it, company-context-dependent titles like "Growth
+// Engineering Intern" (at an edtech company) or "Engineering Practice
+// Internship" (at a bank's tech division) never match, since the title
+// alone doesn't say "software". The cost is some mechanical/civil/
+// electrical engineering internships getting through too — accepted as
+// the better tradeoff for a personal alert tool (skim past a few
+// irrelevant ones vs. silently missing real tech roles).
+export const KEYWORDS_TECH = [
+  "software",
+  "developer",
+  "engineer",
+  "engineering",
+  "IT",
+  "ai",
+  "data",
+  "cloud",
+  "web",
+  "full stack",
+  "full-stack",
+  "frontend",
+  "front-end",
+  "backend",
+  "back-end",
+  "devops",
+  "qa",
+  "systems analyst",
+  "network",
+  "cybersecurity",
+  "cyber security",
+  "database",
 ];
 
 // Sources are enabled one at a time as they're built and validated
