@@ -5,5 +5,8 @@
   ],
   "functions": {
     "api/cron/digest.js": { "maxDuration": 60 }
-  }
+  },
+  "rewrites": [
+    { "source": "/", "destination": "/api/home" }
+  ]
 }

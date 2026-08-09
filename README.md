@@ -2,6 +2,9 @@
 
 Personal tool: scrapes NZ tech intern/grad job listings, filters by location
 and keyword, dedupes across sources, and emails a daily digest at 6pm NZT.
+A simple read-only homepage (`/`, served by `api/home.js`) also lists
+everything currently in the database, for browsing anytime rather than
+waiting for the email.
 
 Currently live: **SEEK**. Other sources (Trade Me, Prosple, Jora, Glassdoor,
 Indeed, LinkedIn) get added one at a time, reusing this same pipeline — see

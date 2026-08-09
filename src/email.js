@@ -1,28 +1,7 @@
 import { Resend } from "resend";
+import { formatDate, sourceLabel, escapeHtml, sortByPostedAtDesc } from "./format.js";
 
 const FROM = "Job Alerts <onboarding@resend.dev>";
-
-function formatDate(date) {
-  if (!date) return "date unknown";
-  return new Intl.DateTimeFormat("en-NZ", {
-    day: "numeric",
-    month: "short",
-    timeZone: "Pacific/Auckland",
-  }).format(date);
-}
-
-function sourceLabel(source) {
-  const labels = {
-    seek: "SEEK",
-    trademe: "Trade Me",
-    prosple: "Prosple",
-    jora: "Jora",
-    glassdoor: "Glassdoor",
-    indeed: "Indeed",
-    linkedin: "LinkedIn",
-  };
-  return labels[source] || source;
-}
 
 function buildSubject(groups, isFirstRun) {
   const count = groups.length;
@@ -52,13 +31,6 @@ function buildText(groups, isFirstRun) {
     lines.push("");
   }
   return lines.join("\n");
-}
-
-function escapeHtml(str) {
-  return (str || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
 }
 
 function buildHtml(groups, isFirstRun) {
@@ -98,11 +70,7 @@ export async function sendDigest(groups, { isFirstRun = false } = {}) {
     throw new Error("DIGEST_TO_EMAIL env var is not set");
   }
 
-  const sorted = [...groups].sort((a, b) => {
-    const aTime = a.postedAt ? a.postedAt.getTime() : 0;
-    const bTime = b.postedAt ? b.postedAt.getTime() : 0;
-    return bTime - aTime;
-  });
+  const sorted = sortByPostedAtDesc(groups);
 
   const resend = new Resend(process.env.RESEND_API_KEY);
   const { error } = await resend.emails.send({
