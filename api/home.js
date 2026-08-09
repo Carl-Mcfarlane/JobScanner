@@ -1,5 +1,5 @@
 import { loadGroupedListings } from "../src/listingsData.js";
-import { renderShell, bucketByDate, renderJobList } from "../src/pageTemplate.js";
+import { renderShell, renderFilterBar, bucketByDate, renderJobList } from "../src/pageTemplate.js";
 
 const SECTION_ORDER = ["New today", "This week", "Earlier"];
 
@@ -26,7 +26,14 @@ export default async function handler(req, res) {
     `;
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.status(200).send(renderShell({ title: "JobScanner — Active Jobs", activeView: "active", bodyHtml: body }));
+    res.status(200).send(
+      renderShell({
+        title: "JobScanner — Active Jobs",
+        activeView: "active",
+        filterBarHtml: renderFilterBar(activeGroups),
+        bodyHtml: body,
+      })
+    );
   } catch (err) {
     console.error(err);
     res.status(500).send(`<pre>Failed to load listings: ${err.message}</pre>`);

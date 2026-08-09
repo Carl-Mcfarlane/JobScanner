@@ -1,5 +1,5 @@
 import { loadGroupedListings } from "../src/listingsData.js";
-import { renderShell, renderJobList } from "../src/pageTemplate.js";
+import { renderShell, renderFilterBar, renderJobList } from "../src/pageTemplate.js";
 
 export default async function handler(req, res) {
   try {
@@ -11,7 +11,14 @@ export default async function handler(req, res) {
     `;
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.status(200).send(renderShell({ title: "JobScanner — Saved Jobs", activeView: "saved", bodyHtml: body }));
+    res.status(200).send(
+      renderShell({
+        title: "JobScanner — Saved Jobs",
+        activeView: "saved",
+        filterBarHtml: renderFilterBar(savedGroups),
+        bodyHtml: body,
+      })
+    );
   } catch (err) {
     console.error(err);
     res.status(500).send(`<pre>Failed to load saved listings: ${err.message}</pre>`);

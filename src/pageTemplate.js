@@ -1,39 +1,47 @@
 import { formatDate, sourceLabel, escapeHtml } from "./format.js";
+import { LOCATIONS } from "./config.js";
 
-// Shared design system for the homepage / saved / removed views. Kept as
-// plain CSS + string templates (no build step, no client JS beyond native
-// HTML forms) — consistent with the rest of this project's "keep it
-// simple" approach.
+// Shared design system for the homepage / saved / removed views.
+//
+// Design: clean and minimal — near-monochrome paper/ink ground, a single
+// restrained accent for links/actions, one sans-serif typeface throughout
+// (hierarchy comes from size/weight/spacing, not multiple type families).
+// Flat list with hairline dividers rather than boxed cards; tags and
+// actions read as plain text, not bordered pills/buttons.
+//
+// Filtering (search + source/location toggles) is plain vanilla JS at
+// the bottom of the page — filters the already-rendered list client-side,
+// no framework, no page reload. Save/Remove/Restore stay regular HTML
+// form POSTs (untouched by the filter JS).
 
 const STYLES = `
   :root {
-    --paper: #f7f6f3;
-    --ink: #15171a;
-    --accent: #1f8a82;
-    --accent-ink: #0d3d3a;
-    --saved: #c89b3c;
-    --danger: #b23a48;
-    --card-bg: #ffffff;
-    --border: #e4e1da;
-    --text: #1c1e21;
-    --text-muted: #6b6f76;
-    --text-faint: #93979e;
-    --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+    --paper: #fafaf8;
+    --ink: #1c1c1a;
+    --accent: #2451c4;
+    --saved: #9c7a1f;
+    --danger: #a13333;
+    --border: #e6e4de;
+    --text: #1c1c1a;
+    --text-muted: #6b6b64;
+    --text-faint: #96958c;
+    --chip-bg: #f0efe9;
+    --chip-bg-active: #2451c4;
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --paper: #15171a;
-      --ink: #f7f6f3;
-      --accent: #3db3a9;
-      --accent-ink: #bdeee8;
-      --saved: #e0b45a;
-      --danger: #e0707c;
-      --card-bg: #1c1f23;
-      --border: #2c2f34;
-      --text: #eceae5;
-      --text-muted: #a3a7ad;
-      --text-faint: #6b6f76;
+      --paper: #171715;
+      --ink: #ededE8;
+      --accent: #6f93ee;
+      --saved: #d4a72c;
+      --danger: #d97070;
+      --border: #2c2c28;
+      --text: #ededE8;
+      --text-muted: #9a9a92;
+      --text-faint: #6b6b64;
+      --chip-bg: #232320;
+      --chip-bg-active: #6f93ee;
     }
   }
 
@@ -46,37 +54,36 @@ const STYLES = `
     -webkit-font-smoothing: antialiased;
   }
   a { color: var(--accent); }
-  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 72px; }
+  .wrap { max-width: 660px; margin: 0 auto; padding: 32px 20px 80px; }
 
-  header.top { margin-bottom: 20px; }
+  header.top { margin-bottom: 24px; }
   .wordmark {
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--accent);
+    color: var(--text-faint);
     font-weight: 600;
-    margin: 0 0 6px;
+    margin: 0 0 8px;
   }
   h1 {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
+    font-weight: 600;
     line-height: 1.25;
-    margin: 0 0 10px;
+    margin: 0 0 16px;
     text-wrap: balance;
   }
   nav.views {
     display: flex;
-    gap: 4px;
-    font-family: var(--mono);
-    font-size: 0.82rem;
+    gap: 20px;
+    font-size: 0.88rem;
     border-bottom: 1px solid var(--border);
     padding-bottom: 0;
   }
   nav.views a {
     display: inline-block;
-    padding: 8px 12px;
+    padding: 0 0 10px;
     color: var(--text-muted);
     text-decoration: none;
     border-bottom: 2px solid transparent;
@@ -87,98 +94,137 @@ const STYLES = `
     border-bottom-color: var(--accent);
   }
   .meta-line {
-    font-family: var(--mono);
-    font-size: 0.78rem;
+    font-size: 0.85rem;
     color: var(--text-faint);
-    margin: 10px 0 0;
+    margin: 16px 0 0;
   }
 
+  .filters { margin: 20px 0 4px; display: flex; flex-direction: column; gap: 10px; }
+  .search-input {
+    width: 100%;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--paper);
+    color: var(--text);
+  }
+  .search-input::placeholder { color: var(--text-faint); }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    padding: 4px 11px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: var(--chip-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .chip:hover { color: var(--text); }
+  .chip.active { background: var(--chip-bg-active); color: #fff; }
+
   h2.section {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--text-faint);
-    margin: 28px 0 10px;
     font-weight: 600;
+    margin: 32px 0 4px;
   }
-  h2.section:first-of-type { margin-top: 22px; }
+  h2.section:first-of-type { margin-top: 24px; }
 
   ul.jobs { list-style: none; margin: 0; padding: 0; }
 
   li.job {
-    display: flex;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--border);
-    border-radius: 6px;
-    margin-bottom: 10px;
-    overflow: hidden;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
   }
-  li.job.is-saved { border-left-color: var(--saved); }
-  li.job.is-removed { border-left-color: var(--danger); }
+  li.job.is-saved .job-title::before { content: "★ "; color: var(--saved); }
 
-  .job-body { padding: 14px 16px; flex: 1; min-width: 0; }
-  .job-title { font-weight: 600; font-size: 1rem; line-height: 1.35; }
-  .job-title .star { color: var(--saved); margin-right: 4px; }
+  .job-title { font-weight: 600; font-size: 1rem; line-height: 1.4; }
   .job-company { color: var(--text); font-size: 0.92rem; margin-top: 2px; }
   .job-meta {
     color: var(--text-muted);
     font-size: 0.82rem;
     margin-top: 6px;
-    font-family: var(--mono);
   }
-  .job-sources { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
-  .tag {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    padding: 2px 8px;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .tag:hover { border-color: var(--accent); color: var(--accent); }
+  .job-sources { margin-top: 6px; font-size: 0.8rem; color: var(--text-faint); }
+  .job-sources a { color: var(--text-faint); text-decoration: none; }
+  .job-sources a:hover { color: var(--accent); text-decoration: underline; }
+  .job-sources .sep { margin: 0 5px; }
 
-  .job-actions {
-    margin-top: 12px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .btn {
+  .job-actions { margin-top: 8px; display: flex; gap: 14px; }
+  .link-btn {
     font-family: var(--sans);
     font-size: 0.82rem;
     font-weight: 500;
-    padding: 6px 12px;
-    border-radius: 5px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
+    padding: 0;
+    border: none;
+    background: none;
     cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
-  .btn:hover { background: var(--border); }
-  .btn-save { border-color: var(--saved); color: var(--saved); }
-  .btn-remove { border-color: var(--danger); color: var(--danger); }
-  .btn-restore { border-color: var(--accent); color: var(--accent); }
+  .link-save { color: var(--saved); }
+  .link-remove { color: var(--danger); }
+  .link-restore { color: var(--accent); }
 
   .empty {
     color: var(--text-faint);
-    padding: 48px 0;
+    padding: 56px 0;
     text-align: center;
-    font-family: var(--mono);
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 
   @media (max-width: 480px) {
-    .wrap { padding: 16px 12px 64px; }
-    h1 { font-size: 1.3rem; }
-    .job-body { padding: 12px; }
+    .wrap { padding: 24px 16px 72px; }
+    h1 { font-size: 1.35rem; }
   }
 `;
 
-export function renderShell({ title, activeView, bodyHtml }) {
+const FILTER_SCRIPT = `
+(function () {
+  var search = document.getElementById("job-search");
+  var chips = document.querySelectorAll(".chip");
+  var items = document.querySelectorAll("li.job");
+  var sections = document.querySelectorAll("h2.section");
+  var activeSources = new Set();
+  var activeLocations = new Set();
+
+  function apply() {
+    var q = (search && search.value || "").trim().toLowerCase();
+    items.forEach(function (li) {
+      var matchesQuery = !q || li.dataset.title.includes(q) || li.dataset.company.includes(q);
+      var srcs = li.dataset.source.split(" ");
+      var matchesSource = activeSources.size === 0 || srcs.some(function (s) { return activeSources.has(s); });
+      var matchesLocation = activeLocations.size === 0 ||
+        Array.from(activeLocations).some(function (loc) { return li.dataset.location.includes(loc); });
+      li.style.display = (matchesQuery && matchesSource && matchesLocation) ? "" : "none";
+    });
+    sections.forEach(function (h2) {
+      var next = h2.nextElementSibling;
+      var anyVisible = next && Array.prototype.some.call(next.children, function (li) { return li.style.display !== "none"; });
+      h2.style.display = anyVisible ? "" : "none";
+      if (next) next.style.display = anyVisible ? "" : "none";
+    });
+  }
+
+  if (search) search.addEventListener("input", apply);
+  chips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      var set = chip.dataset.filterType === "source" ? activeSources : activeLocations;
+      var val = chip.dataset.filterValue;
+      if (set.has(val)) { set.delete(val); chip.classList.remove("active"); }
+      else { set.add(val); chip.classList.add("active"); }
+      apply();
+    });
+  });
+})();
+`;
+
+export function renderShell({ title, activeView, bodyHtml, filterBarHtml = "" }) {
   const views = [
     { href: "/", label: "Active", key: "active" },
     { href: "/saved", label: "Saved", key: "saved" },
@@ -206,10 +252,31 @@ export function renderShell({ title, activeView, bodyHtml }) {
       <h1>NZ Tech Intern &amp; Grad Jobs</h1>
       <nav class="views">${navHtml}</nav>
     </header>
+    ${filterBarHtml}
     ${bodyHtml}
   </div>
+  <script>${FILTER_SCRIPT}</script>
 </body>
 </html>`;
+}
+
+// Renders the search box + source/location toggle chips. `sources` is the
+// distinct list of source ids actually present in `groups` (no point
+// showing a filter chip for a source with zero listings).
+export function renderFilterBar(groups) {
+  const sources = [...new Set(groups.flatMap((g) => g.entries.map((e) => e.source)))].sort();
+  const sourceChips = sources
+    .map((s) => `<button type="button" class="chip" data-filter-type="source" data-filter-value="${escapeHtml(s)}">${escapeHtml(sourceLabel(s))}</button>`)
+    .join("");
+  const locationChips = LOCATIONS
+    .map((loc) => `<button type="button" class="chip" data-filter-type="location" data-filter-value="${escapeHtml(loc.toLowerCase())}">${escapeHtml(loc)}</button>`)
+    .join("");
+
+  return `<div class="filters">
+    <input type="text" id="job-search" class="search-input" placeholder="Search title or company&hellip;" autocomplete="off">
+    <div class="chip-row">${sourceChips}</div>
+    <div class="chip-row">${locationChips}</div>
+  </div>`;
 }
 
 function actionForm({ key, status, returnTo, label, className }) {
@@ -217,41 +284,42 @@ function actionForm({ key, status, returnTo, label, className }) {
     <input type="hidden" name="key" value="${escapeHtml(key)}">
     <input type="hidden" name="status" value="${escapeHtml(status)}">
     <input type="hidden" name="returnTo" value="${escapeHtml(returnTo)}">
-    <button type="submit" class="btn ${className}">${escapeHtml(label)}</button>
+    <button type="submit" class="link-btn ${className}">${escapeHtml(label)}</button>
   </form>`;
 }
 
 export function jobCard(g, { returnTo }) {
   const sources = g.entries
-    .map((e) => `<a class="tag" href="${escapeHtml(e.url)}" target="_blank" rel="noopener">${escapeHtml(sourceLabel(e.source))}</a>`)
-    .join("");
+    .map((e) => `<a href="${escapeHtml(e.url)}" target="_blank" rel="noopener">${escapeHtml(sourceLabel(e.source))}</a>`)
+    .join('<span class="sep">·</span>');
 
   let actions;
   let statusClass = "";
   if (g.status === "saved") {
     statusClass = "is-saved";
     actions =
-      actionForm({ key: g.normalizedKey, status: "clear", returnTo, label: "Un-save", className: "btn-restore" }) +
-      actionForm({ key: g.normalizedKey, status: "removed", returnTo, label: "Remove", className: "btn-remove" });
+      actionForm({ key: g.normalizedKey, status: "clear", returnTo, label: "Un-save", className: "link-restore" }) +
+      actionForm({ key: g.normalizedKey, status: "removed", returnTo, label: "Remove", className: "link-remove" });
   } else if (g.status === "removed") {
     statusClass = "is-removed";
-    actions = actionForm({ key: g.normalizedKey, status: "clear", returnTo, label: "Restore", className: "btn-restore" });
+    actions = actionForm({ key: g.normalizedKey, status: "clear", returnTo, label: "Restore", className: "link-restore" });
   } else {
     actions =
-      actionForm({ key: g.normalizedKey, status: "saved", returnTo, label: "Save", className: "btn-save" }) +
-      actionForm({ key: g.normalizedKey, status: "removed", returnTo, label: "Remove", className: "btn-remove" });
+      actionForm({ key: g.normalizedKey, status: "saved", returnTo, label: "Save", className: "link-save" }) +
+      actionForm({ key: g.normalizedKey, status: "removed", returnTo, label: "Remove", className: "link-remove" });
   }
 
-  const star = g.status === "saved" ? '<span class="star">★</span>' : "";
+  const dataSource = g.entries.map((e) => e.source).join(" ");
+  const dataTitle = escapeHtml((g.title || "").toLowerCase());
+  const dataCompany = escapeHtml((g.company || "").toLowerCase());
+  const dataLocation = escapeHtml((g.location || "").toLowerCase());
 
-  return `<li class="job ${statusClass}">
-    <div class="job-body">
-      <div class="job-title">${star}${escapeHtml(g.title)}</div>
-      <div class="job-company">${escapeHtml(g.company)}</div>
-      <div class="job-meta">${escapeHtml(g.location || "Location not specified")} — Posted ${formatDate(g.postedAt)}</div>
-      <div class="job-sources">${sources}</div>
-      <div class="job-actions">${actions}</div>
-    </div>
+  return `<li class="job ${statusClass}" data-title="${dataTitle}" data-company="${dataCompany}" data-source="${escapeHtml(dataSource)}" data-location="${dataLocation}">
+    <div class="job-title">${escapeHtml(g.title)}</div>
+    <div class="job-company">${escapeHtml(g.company)}</div>
+    <div class="job-meta">${escapeHtml(g.location || "Location not specified")} — Posted ${formatDate(g.postedAt)}</div>
+    <div class="job-sources">${sources}</div>
+    <div class="job-actions">${actions}</div>
   </li>`;
 }
 
