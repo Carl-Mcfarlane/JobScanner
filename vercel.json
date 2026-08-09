@@ -1,7 +1,7 @@
 {
   "regions": ["syd1"],
   "crons": [
-    { "path": "/api/cron/digest", "schedule": "0 5 * * *" }
+    { "path": "/api/cron/digest", "schedule": "30 3 * * *" }
   ],
   "functions": {
     "api/cron/digest.js": { "maxDuration": 60 }

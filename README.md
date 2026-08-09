@@ -1,7 +1,7 @@
 # Job Finder App
 
 Personal tool: scrapes NZ tech intern/grad job listings, filters by location
-and keyword, dedupes across sources, and emails a daily digest at 6pm NZT.
+and keyword, dedupes across sources, and emails a daily digest at ~4:30pm NZT.
 A simple read-only homepage (`/`, served by `api/home.js`) also lists
 everything currently in the database, for browsing anytime rather than
 waiting for the email.
@@ -50,18 +50,19 @@ Vercel Cron schedules are fixed UTC and don't track daylight saving. NZ
 alternates between NZST (UTC+12) and NZDT (UTC+13), so a single fixed-UTC
 cron expression drifts an hour off-target for part of the year.
 
-The ideal fix is an hourly cron that self-gates on "is it actually 6pm in
-Pacific/Auckland right now" (computed via `Intl`, which knows about DST) —
-but that requires **Vercel Pro**, since Hobby-plan projects are limited to
-daily cron jobs. The `carlms-projects` team this is deployed under is on
-Hobby, so `vercel.json` currently uses a single daily cron at a fixed UTC
-time (`0 5 * * *` = 5am UTC), chosen to land on 6pm during NZDT (the longer
-of the two — about 7 months a year) and 5pm during NZST (~5 months a year).
+The ideal fix is an hourly cron that self-gates on "is it actually 4:30pm
+in Pacific/Auckland right now" (computed via `Intl`, which knows about
+DST) — but that requires **Vercel Pro**, since Hobby-plan projects are
+limited to daily cron jobs. The `carlms-projects` team this is deployed
+under is on Hobby, so `vercel.json` currently uses a single daily cron at
+a fixed UTC time (`30 3 * * *` = 3:30am UTC), chosen to land on 4:30pm
+during NZDT (the longer of the two — about 7 months a year) and 3:30pm
+during NZST (~5 months a year).
 
 If this project ever moves to a Pro team, swap back to the DST-accurate
-version: schedule `"0 * * * *"` (hourly) in `vercel.json`, and in
-`api/cron/digest.js` add a check that skips unless
-`getNzHour() === 18` (re-add `getNzHour` to `src/time.js` — it's a few
+version: schedule `"30 * * * *"` (hourly, on the half-hour) in
+`vercel.json`, and in `api/cron/digest.js` add a check that skips unless
+`getNzHour() === 16` (re-add `getNzHour` to `src/time.js` — it's a few
 lines, see git history) before running the pipeline.
 
 Either way, `api/cron/digest.js` also checks Mongo for whether today's
@@ -158,8 +159,9 @@ vercel deploy --prod
 ```
 
 Vercel Cron (configured in `vercel.json`) will start hitting
-`/api/cron/digest` hourly automatically once deployed — no separate cron
-setup needed. It self-gates to only actually run at 6pm NZT (see above).
+`/api/cron/digest` once a day automatically once deployed — no separate
+cron setup needed. See "Digest timing" above for why it's a fixed daily
+UTC time rather than exact 4:30pm NZT year-round.
 
 **Function timeout**: `vercel.json` sets `maxDuration: 60` for the cron
 function. SEEK alone takes well under that (a handful of requests with a

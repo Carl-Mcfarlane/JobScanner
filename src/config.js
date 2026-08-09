@@ -42,6 +42,7 @@ export const KEYWORDS_ENTRY = [
 export const KEYWORDS_TECH = [
   "software",
   "developer",
+  "dev",
   "engineer",
   "engineering",
   "IT",
@@ -58,11 +59,42 @@ export const KEYWORDS_TECH = [
   "devops",
   "qa",
   "systems analyst",
+  "sysadmin",
+  "administrator",
+  "admin",
+  "help desk",
+  "service desk",
+  "desktop support",
+  "technical support",
   "network",
+  "infrastructure",
   "cybersecurity",
   "cyber security",
+  "cyber",
+  "security",
   "database",
+  "programmer",
+  "programming",
+  "machine learning",
+  "ml",
+  "artificial intelligence",
+  "mobile app",
+  "ux",
+  "ui",
+  "computer science",
+  "information technology",
+  "technology",
+  "tech",
+  "site reliability",
+  "automation",
+  "embedded",
 ];
+
+// Deliberately NOT included: bare "architect" (NZ has plenty of literal
+// building-architecture graduate programmes — "Graduate Architect" at a
+// firm like Warren and Mahoney is not a tech role), and "code"/"coding"
+// (too many non-tech collisions — "dress code", "post code", "building
+// code" — for the recall gain they'd add over "developer"/"programming").
 
 // Sources are enabled one at a time as they're built and validated
 // end-to-end (see BUILD APPROACH in project notes). Flip `enabled: true`
