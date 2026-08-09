@@ -43,6 +43,7 @@ function extractJobs(html) {
     const url = card.match(/<a href="([^"]+)" class="btn btn-outline-primary">/)?.[1];
     const dateStr = card.match(/card-job__date">([^<]*)</)?.[1]?.trim();
     const reference = card.match(/card-job__reference">([^<]*)</)?.[1]?.trim();
+    const salary = card.match(/card-job__salary">\s*([^<]*)</)?.[1]?.trim();
 
     if (!title || !url) continue;
     jobs.push({
@@ -53,6 +54,7 @@ function extractJobs(html) {
       company: "Absolute IT",
       location: decodeHtmlEntities(location || ""),
       postedAt: dateStr ? parseDate(dateStr) : null,
+      salary: salary ? decodeHtmlEntities(salary) : "",
     });
   }
   return jobs;

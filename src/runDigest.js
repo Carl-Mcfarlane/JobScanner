@@ -57,6 +57,7 @@ export async function runDigest({ log = console.log, dryRun = false } = {}) {
             company: l.company,
             location: l.location,
             postedAt: l.postedAt,
+            salary: l.salary || "",
             normalizedKey: normalizedKey(l),
             firstSeenAt: now,
           },

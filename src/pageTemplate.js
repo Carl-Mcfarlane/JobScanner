@@ -314,10 +314,12 @@ export function jobCard(g, { returnTo }) {
   const dataCompany = escapeHtml((g.company || "").toLowerCase());
   const dataLocation = escapeHtml((g.location || "").toLowerCase());
 
+  const salaryPart = g.salary ? ` — ${escapeHtml(g.salary)}` : "";
+
   return `<li class="job ${statusClass}" data-title="${dataTitle}" data-company="${dataCompany}" data-source="${escapeHtml(dataSource)}" data-location="${dataLocation}">
     <div class="job-title">${escapeHtml(g.title)}</div>
     <div class="job-company">${escapeHtml(g.company)}</div>
-    <div class="job-meta">${escapeHtml(g.location || "Location not specified")} — Posted ${formatDate(g.postedAt)}</div>
+    <div class="job-meta">${escapeHtml(g.location || "Location not specified")} — Posted ${formatDate(g.postedAt)}${salaryPart}</div>
     <div class="job-sources">${sources}</div>
     <div class="job-actions">${actions}</div>
   </li>`;

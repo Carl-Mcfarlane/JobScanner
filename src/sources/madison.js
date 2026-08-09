@@ -32,6 +32,7 @@ function extractJobs(html) {
   for (const card of cards) {
     const titleMatch = card.match(/card-job__title">\s*<a href="([^"]+)">([^<]*)</);
     const location = card.match(/card-job__location">.*?<a[^>]*>([^<]*)</s)?.[1]?.trim();
+    const salary = card.match(/card-job__salary">\s*([^<]*)</)?.[1]?.trim();
 
     if (!titleMatch) continue;
     const [, url, title] = titleMatch;
@@ -43,6 +44,7 @@ function extractJobs(html) {
       company: "Madison Recruitment",
       location: decodeHtmlEntities(location || ""),
       postedAt: null,
+      salary: salary ? decodeHtmlEntities(salary) : "",
     });
   }
   return jobs;

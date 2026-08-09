@@ -72,6 +72,13 @@ function extractInitialState(html) {
   }
 }
 
+function salaryText(salary) {
+  if (!salary) return "";
+  if (salary.details) return salary.details;
+  if (salary.min_salary && salary.max_salary) return `$${salary.min_salary} - $${salary.max_salary}`;
+  return "";
+}
+
 function toListings(campaignGroup) {
   const company = campaignGroup.customer_organization?.name || "";
   return (campaignGroup.campaigns || [])
@@ -89,6 +96,7 @@ function toListings(campaignGroup) {
       company,
       location: (c.locations || []).join(", "),
       postedAt: c.interval?.start ? new Date(c.interval.start) : null,
+      salary: salaryText(c.salary),
     }));
 }
 

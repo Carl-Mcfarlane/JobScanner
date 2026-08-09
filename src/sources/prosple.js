@@ -97,7 +97,21 @@ function toListing(entity, cache) {
     company,
     location,
     postedAt: entity.applicationsOpenDate ? new Date(entity.applicationsOpenDate) : null,
+    salary: salaryText(entity),
   };
+}
+
+function salaryText(entity) {
+  if (entity.hideSalary) return "";
+  if (entity.salaryDescription) return entity.salaryDescription;
+  if (entity.minSalary && entity.maxSalary) {
+    const rate = entity.salary?.rate === "hourly" ? "/hr" : "";
+    if (entity.minSalary === entity.maxSalary) {
+      return `$${entity.minSalary.toLocaleString()}${rate}`;
+    }
+    return `$${entity.minSalary.toLocaleString()} - $${entity.maxSalary.toLocaleString()}${rate}`;
+  }
+  return "";
 }
 
 async function fetchSeedPage(slug) {

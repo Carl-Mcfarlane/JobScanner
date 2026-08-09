@@ -100,6 +100,7 @@ function toListing(job) {
     company: job.companyName || job.advertiser?.description || "",
     location,
     postedAt: job.listingDate ? new Date(job.listingDate) : null,
+    salary: job.salaryLabel || "",
   };
 }
 

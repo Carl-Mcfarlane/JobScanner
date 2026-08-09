@@ -15,6 +15,7 @@ export function groupListings(listings) {
         company: listing.company,
         location: listing.location,
         postedAt: listing.postedAt,
+        salary: listing.salary || "",
         entries: [],
       });
     }
@@ -23,6 +24,10 @@ export function groupListings(listings) {
     // Keep the earliest known posting date across duplicate entries.
     if (listing.postedAt && (!group.postedAt || listing.postedAt < group.postedAt)) {
       group.postedAt = listing.postedAt;
+    }
+    // Fill in salary from whichever duplicate entry happens to have it.
+    if (!group.salary && listing.salary) {
+      group.salary = listing.salary;
     }
   }
 

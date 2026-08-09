@@ -85,7 +85,13 @@ function toListing(item) {
     company: "Randstad",
     location,
     postedAt: item.launch_date ? new Date(item.launch_date) : null,
+    salary: salaryText(item),
   };
+}
+
+function salaryText(item) {
+  if (!item.minimum_salary || !item.maximum_salary) return "";
+  return `$${item.minimum_salary.toLocaleString()} - $${item.maximum_salary.toLocaleString()}`;
 }
 
 async function fetchLocationPage(path) {
