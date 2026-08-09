@@ -1,11 +1,17 @@
 import { SOURCES } from "../config.js";
 import { fetchSeekListings } from "./seek.js";
+import { fetchSeekGradListings } from "./seekgrad.js";
+import { fetchProspleListings } from "./prosple.js";
+import { fetchGlassdoorListings } from "./glassdoor.js";
 
 // Each entry: sourceId -> fetch function returning normalized listings
 // ({ source, sourceId, url, title, company, location, postedAt }[]).
 // Add new sources here once their scraper is built and validated.
 const SCRAPERS = {
   seek: fetchSeekListings,
+  seekgrad: fetchSeekGradListings,
+  prosple: fetchProspleListings,
+  glassdoor: fetchGlassdoorListings,
 };
 
 export async function fetchAllListings({ log = () => {} } = {}) {

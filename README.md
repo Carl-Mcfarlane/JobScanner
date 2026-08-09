@@ -6,9 +6,26 @@ A simple read-only homepage (`/`, served by `api/home.js`) also lists
 everything currently in the database, for browsing anytime rather than
 waiting for the email.
 
-Currently live: **SEEK**. Other sources (Trade Me, Prosple, Jora, Glassdoor,
-Indeed, LinkedIn) get added one at a time, reusing this same pipeline — see
-`src/config.js` `SOURCES`.
+Currently live: **SEEK, SEEK Grad (nz.gradconnection.com), Prosple**. Sources
+get added one at a time, reusing this same pipeline — see `src/config.js`
+`SOURCES`. Status of the rest:
+
+- **Trade Me** — deferred. Official Jobs Search API requires a registered
+  OAuth app (consumer key/secret + an access token generated for your own
+  account) — needs manual setup on trademe.co.nz that only the account
+  owner can do.
+- **Glassdoor** — built (`src/sources/glassdoor.js`), page-1-only per
+  robots.txt, but not enabled: Glassdoor 403s Node's `fetch` specifically
+  even with headers that work fine via `curl` — looks like TLS/HTTP client
+  fingerprinting, not a missing-header issue.
+- **Jora** — not built. `robots.txt` blanket-disallows `/` for any
+  unnamed user-agent.
+- **Indeed** — not built. `robots.txt` disallows `/jobs` and `/viewjob`
+  outright — the exact paths needed.
+- **LinkedIn** — not built. `robots.txt` opens with an explicit "automated
+  access is strictly prohibited without permission" notice and disallows
+  `/jobs-guest/`; combined with LinkedIn's history of legal action against
+  scrapers, this one's being skipped rather than attempted.
 
 ## How it works
 
@@ -187,16 +204,14 @@ All tunable filters live in `src/config.js`, no code changes needed elsewhere:
 - Runs once/day, not polling.
 - Capped at 4 pages per seed query (`MAX_PAGES_PER_QUERY` in `seek.js`).
 
-## What's next (per the agreed build order)
+## What's next
 
 1. ~~SEEK~~ — done, validated end-to-end.
-2. Trade Me — search results are client-rendered (Angular SPA pulling from
-   `api.trademe.co.nz`); needs the API call reverse-engineered rather than
-   simple HTML scraping. Next up.
-3. Prosple, Jora, Glassdoor — investigate each the same way (static HTML?
-   hidden JSON API? needs a headless browser?) before writing scrapers.
-4. Indeed — proceed carefully (stronger anti-scraping); will check
-   robots.txt and flag if it's actively blocking rather than just
-   rate-limiting.
-5. LinkedIn — build last; will flag if it's not worth the fragility rather
-   than force it.
+2. ~~SEEK Grad~~ — done, validated end-to-end.
+3. ~~Prosple~~ — done, validated end-to-end.
+4. Glassdoor — scraper built, blocked on the Node `fetch` TLS-fingerprint
+   403 described above.
+5. Trade Me — deferred, needs the account owner to register a Trade Me
+   developer app.
+6. Jora, Indeed, LinkedIn — not planned; all three disallow the paths a
+   compliant scraper would need (see above).

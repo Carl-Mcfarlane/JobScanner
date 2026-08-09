@@ -3,6 +3,7 @@
 
 const SOURCE_LABELS = {
   seek: "SEEK",
+  seekgrad: "SEEK Grad",
   trademe: "Trade Me",
   prosple: "Prosple",
   jora: "Jora",
