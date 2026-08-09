@@ -6,14 +6,21 @@ A simple read-only homepage (`/`, served by `api/home.js`) also lists
 everything currently in the database, for browsing anytime rather than
 waiting for the email.
 
-Currently live: **SEEK, SEEK Grad (nz.gradconnection.com), Prosple**. Sources
-get added one at a time, reusing this same pipeline — see `src/config.js`
-`SOURCES`. Status of the rest:
+Currently live: **SEEK, SEEK Grad (nz.gradconnection.com), Prosple,
+Absolute IT, Randstad, Madison Recruitment**. Sources get added one at a
+time, reusing this same pipeline — see `src/config.js` `SOURCES`. Status
+of the rest:
 
 - **Trade Me** — deferred. Official Jobs Search API requires a registered
   OAuth app (consumer key/secret + an access token generated for your own
   account) — needs manual setup on trademe.co.nz that only the account
   owner can do.
+- **Momentum Consulting** — deferred. Job data loads via a third-party
+  widget SDK (Shazamme, shazamme.io) whose site-identification call can't
+  be traced from static HTML alone — needs real network-request
+  inspection (browser devtools), not just reading page source.
+- **Beyond Recruitment** — deferred. No job data in static HTML and no
+  findable API domain — same "needs live network inspection" situation.
 - **Glassdoor** — built (`src/sources/glassdoor.js`), page-1-only per
   robots.txt, but not enabled: Glassdoor 403s Node's `fetch` specifically
   even with headers that work fine via `curl` — looks like TLS/HTTP client
@@ -22,6 +29,10 @@ get added one at a time, reusing this same pipeline — see `src/config.js`
   unnamed user-agent.
 - **Indeed** — not built. `robots.txt` disallows `/jobs` and `/viewjob`
   outright — the exact paths needed.
+- **Hays NZ** — not built. `robots.txt` disallows `/job-search/*` and
+  `/search?` broadly — same situation as Indeed.
+- **Monster** — not built. No NZ presence exists anymore (no
+  `monster.co.nz`, no NZ-specific listings).
 - **LinkedIn** — not built. `robots.txt` opens with an explicit "automated
   access is strictly prohibited without permission" notice and disallows
   `/jobs-guest/`; combined with LinkedIn's history of legal action against
@@ -211,9 +222,13 @@ All tunable filters live in `src/config.js`, no code changes needed elsewhere:
 1. ~~SEEK~~ — done, validated end-to-end.
 2. ~~SEEK Grad~~ — done, validated end-to-end.
 3. ~~Prosple~~ — done, validated end-to-end.
-4. Glassdoor — scraper built, blocked on the Node `fetch` TLS-fingerprint
+4. ~~Absolute IT~~ — done, validated end-to-end.
+5. ~~Randstad~~ — done, validated end-to-end.
+6. ~~Madison~~ — done, validated end-to-end.
+7. Glassdoor — scraper built, blocked on the Node `fetch` TLS-fingerprint
    403 described above.
-5. Trade Me — deferred, needs the account owner to register a Trade Me
-   developer app.
-6. Jora, Indeed, LinkedIn — not planned; all three disallow the paths a
-   compliant scraper would need (see above).
+8. Trade Me, Momentum, Beyond Recruitment — deferred; Trade Me needs the
+   account owner to register a developer app, the other two need real
+   network-request inspection to find their APIs.
+9. Jora, Indeed, Hays, Monster, LinkedIn — not planned; ruled out on
+   robots.txt/legal/no-NZ-presence grounds (see above).

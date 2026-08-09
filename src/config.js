@@ -107,6 +107,14 @@ export const SOURCES = [
   { id: "absoluteit", enabled: true }, // absoluteit.co.nz — NZ IT-specific recruitment agency
   { id: "randstad", enabled: true }, // randstad.co.nz — location-scoped pages
   { id: "madison", enabled: true }, // madison.co.nz — general recruiter, most listings filtered out
+  // Momentum: deferred — job data loads via a third-party widget SDK
+  // (Shazamme, shazamme.io) whose site-identification call can't be
+  // traced from static HTML alone; needs real network-request inspection.
+  { id: "momentum", enabled: false },
+  // Beyond Recruitment: deferred — no job data in static HTML and no
+  // findable API domain; same "needs live network inspection" situation
+  // as Momentum.
+  { id: "beyondrecruitment", enabled: false },
   // Glassdoor: page-1 search URLs are robots.txt-compliant and the scraper
   // is built (src/sources/glassdoor.js), but Glassdoor 403s Node's fetch
   // specifically — same headers work fine via curl, so this looks like
