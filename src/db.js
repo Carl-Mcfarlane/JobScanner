@@ -37,6 +37,16 @@ export async function getMetaCollection() {
   return db.collection("meta");
 }
 
+// Save/remove state for the homepage, keyed by the same normalizedKey used
+// for cross-source dedupe (see matching.js / dedupe.js) rather than by a
+// single raw listing's source+sourceId — a job saved/removed on the
+// homepage should stay saved/removed even if it's also showing up under a
+// different source's copy of the same listing.
+export async function getListingActionsCollection() {
+  const db = await getDb();
+  return db.collection("listingActions");
+}
+
 const META_DOC_ID = "state";
 
 export async function getState() {
