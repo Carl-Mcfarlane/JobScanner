@@ -4,7 +4,7 @@
     { "path": "/api/cron/digest", "schedule": "30 3 * * *" }
   ],
   "functions": {
-    "api/cron/digest.js": { "maxDuration": 60 }
+    "api/cron/digest.js": { "maxDuration": 300 }
   },
   "rewrites": [
     { "source": "/", "destination": "/api/home" },
